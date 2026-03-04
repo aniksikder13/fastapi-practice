@@ -2,29 +2,17 @@ from uuid import UUID
 from sqlmodel import select
 from starlette import status
 from typing import Annotated
-from helper.model import Todo
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, Query, HTTPException
-from helper.database import SessionDep, create_db_and_tables
+from model import Todo
+from fastapi import APIRouter, Query, HTTPException
+from database import SessionDep
 from helper.types import TodoCreateRequest, TodoUpdateRequest
 
+router = APIRouter(
+    prefix = "/todo",
+    tags = ["Todo"]
+)
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # 🔵 Startup code
-    print("App is starting...")
-    create_db_and_tables()
-
-    yield
-
-    # 🔴 Shutdown code
-    print("App is shutting down...")
-
-
-app = FastAPI(lifespan=lifespan)
-
-
-@app.get('/todo', response_model=list[Todo])
+@router.get('', response_model=list[Todo])
 async def read_todos(
     session: SessionDep,
     offset: int = 0,
@@ -35,7 +23,7 @@ async def read_todos(
     return todo
 
 
-@app.get("/todo/{id}", response_model=Todo)
+@router.get("/{id}", response_model=Todo)
 async def read_todo(id: UUID, session: SessionDep):
 
     todo = session.get(Todo, id)
@@ -45,10 +33,10 @@ async def read_todo(id: UUID, session: SessionDep):
     return todo
 
 
-@app.post("/todo", status_code=status.HTTP_201_CREATED, response_model=Todo)
-async def create_todo(todo_request: TodoCreateRequest, session: SessionDep):
+@router.post("", status_code=status.HTTP_201_CREATED, response_model=Todo)
+async def create_todo(request_body: TodoCreateRequest, session: SessionDep):
 
-    todo = Todo(**todo_request.model_dump())
+    todo = Todo(**request_body.model_dump())
 
     session.add(todo)
     session.commit()
@@ -57,15 +45,15 @@ async def create_todo(todo_request: TodoCreateRequest, session: SessionDep):
     return todo
 
 
-@app.patch("/todo/{id}", status_code=status.HTTP_201_CREATED, response_model=Todo)
-async def update_todo(id: UUID, update_request: TodoUpdateRequest, session: SessionDep):
+@router.patch("/{id}", status_code=status.HTTP_201_CREATED, response_model=Todo)
+async def update_todo(id: UUID, request_body: TodoUpdateRequest, session: SessionDep):
 
     todo_db = session.get(Todo, id)
 
     if not todo_db:
         raise HTTPException(status_code=404, detail="Todo not found")
 
-    update_data = update_request.model_dump(exclude_unset=True)
+    update_data = request_body.model_dump(exclude_unset=True)
 
     todo_db.sqlmodel_update(update_data)
     session.add(todo_db)
@@ -74,7 +62,7 @@ async def update_todo(id: UUID, update_request: TodoUpdateRequest, session: Sess
 
     return todo_db
 
-@app.delete("/todo/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def  delete_todo(id:UUID, session: SessionDep):
     todo_db = session.get(Todo, id)
 
