@@ -3,6 +3,7 @@ from sqlmodel import select
 from starlette import status
 from typing import Annotated
 from model import User
+from helper.hash_password import hash_pass
 from fastapi import APIRouter, Query, HTTPException
 from database import SessionDep
 from helper.types import UserCreateRequest, UserResponse
@@ -24,7 +25,7 @@ async def create_user(request_body: UserCreateRequest, session: SessionDep):
             detail="Email already registered"
         )
 
-    user = User(**request_body.model_dump())
+    user = User(**request_body.model_dump(exclude={"password"}), password=hash_pass(request_body.password))
 
     session.add(user)
     session.commit()
