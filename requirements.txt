@@ -2,3 +2,4 @@ bcrypt==4.0.1
 passlib==1.7.4
 SQLAlchemy==2.0.47
 sqlmodel==0.0.37
+python-multipart==0.0.22

@@ -11,7 +11,8 @@ class User(SQLModel, table=True):
     id: UUID | None = Field(default_factory=uuid4, primary_key=True)
     first_name: str = Field(max_length=80)
     last_name: str = Field(max_length=80)
-    email: str = Field(unique=True, index=True)
+    username: str = Field(max_length=15, unique=True, index=True)
+    email: str = Field(unique=True)
     password: str
     date_of_birth: date
     is_active: bool = Field(default=True)

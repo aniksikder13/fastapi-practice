@@ -13,6 +13,7 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
+    username: str
     password: str
     date_of_birth: date
     role: UserRole
@@ -23,6 +24,7 @@ class UserResponse(BaseModel):
 class UserCreateRequest(BaseModel):
     first_name: str = Field(min_length=3, max_length=80)
     last_name: str = Field(min_length=3, max_length=80)
+    username: str = Field(min_length=3, max_length=15)
     email: EmailStr
     password: str = Field(min_length=6)
     date_of_birth: date
@@ -41,3 +43,7 @@ class TodoUpdateRequest(BaseModel):
     description: Optional[str] = Field(default=None, min_length=3, max_length=120)
     priority: Optional[int] = Field(default=None, gt=0, lt=6)
     is_completed: Optional[bool] = None
+
+
+class AuthRefreshTokenRequest(BaseModel):
+    refresh_token: str
