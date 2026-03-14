@@ -26,6 +26,16 @@ class User(SQLModel, table=True):
     )
 
 
+class Token(SQLModel, table=True):
+
+    __tablename__ = "Token"
+
+    id: UUID | None = Field(default_factory=uuid4, primary_key=True)
+    user_id: UUID = Field(foreign_key="User.id")
+    refresh_token: str
+    expire: datetime
+
+
 class Todo(SQLModel, table=True):
 
     __tablename__ = "Todo"

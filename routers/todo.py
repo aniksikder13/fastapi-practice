@@ -7,10 +7,12 @@ from fastapi import APIRouter, Query, HTTPException
 from database import SessionDep
 from helper.types import TodoCreateRequest, TodoUpdateRequest
 
+
 router = APIRouter(
     prefix = "/todo",
     tags = ["Todo"]
 )
+
 
 @router.get('', response_model=list[Todo])
 async def read_todos(
@@ -62,8 +64,10 @@ async def update_todo(id: UUID, request_body: TodoUpdateRequest, session: Sessio
 
     return todo_db
 
+
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def  delete_todo(id:UUID, session: SessionDep):
+
     todo_db = session.get(Todo, id)
 
     if not todo_db:
