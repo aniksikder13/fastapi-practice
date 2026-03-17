@@ -10,6 +10,7 @@ class UserRole(str, Enum):
 
 
 class UserResponse(BaseModel):
+    id: uuid.UUID
     first_name: str
     last_name: str
     email: EmailStr
@@ -17,7 +18,6 @@ class UserResponse(BaseModel):
     password: str
     date_of_birth: date
     role: UserRole
-    id: uuid.UUID
     created_at: datetime
 
 

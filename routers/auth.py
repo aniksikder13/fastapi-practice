@@ -41,7 +41,9 @@ async def login_for_access_token(
 
     access_token = get_token(
             data = {
-                    "sub": str(user.id),
+                    "user_id": str(user.id),
+                    "username": user.username,
+                    "role": user.role,
                     "type": "access"
                 },
             timedelta=timedelta(minutes=15)
@@ -49,7 +51,9 @@ async def login_for_access_token(
 
     refresh_token = get_token(
             data = {
-                    "sub": str(user.id),
+                    "user_id": str(user.id),
+                    "username": user.username,
+                    "role": user.role,
                     "type": "refresh"
                 },
             timedelta=timedelta(days=30)
@@ -82,7 +86,7 @@ async def login_for_refresh_token(
             detail = "Invalid Refresh token"
         )
 
-    token_in_db = check_token(session, UUID(payload.get('sub')))
+    token_in_db = check_token(session, UUID(payload.get('user_id')))
 
     if token_in_db.refresh_token != req_body.refresh_token:
         raise HTTPException(
@@ -92,7 +96,9 @@ async def login_for_refresh_token(
 
     access_token = get_token(
             data = {
-                    "sub": str(payload.get('sub')),
+                    "user_id": str(payload.get('user_id')),
+                    "username": payload.get('username'),
+                    "role": payload.get('role'),
                     "type": "access"
                 },
             timedelta=timedelta(days=30)

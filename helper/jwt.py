@@ -2,12 +2,15 @@ import os
 from uuid import UUID
 from model import Token
 from starlette import status
-from fastapi import HTTPException
-from sqlmodel import delete, Session, select
 from helper.types import UserResponse
 from datetime import datetime, timezone
+from fastapi import HTTPException, Depends
+from sqlmodel import delete, Session, select
+from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError, ExpiredSignatureError
 
+
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def get_token(data:dict, timedelta ):
@@ -78,3 +81,27 @@ def save_token_db(session: Session, user: UserResponse, token: str, delta_expire
 
     session.commit()
 
+
+# Get user from token
+def get_current_user(token: str = Depends(oauth2_bearer)):
+    try:
+        payload = jwt.decode(
+                token,
+                os.environ['SECRET_KEY'],
+                algorithms = [os.environ['ALGORITHM']]
+            )
+
+        if payload.get('user_id') is None:
+            raise HTTPException(
+                    status_code = status.HTTP_401_UNAUTHORIZED
+                )
+        return {
+            "id": UUID(payload.get('user_id')),
+            "username": payload.get('username'),
+            "role": payload.get('role')
+        }
+    except JWTError:
+          raise HTTPException(
+                    status_code = status.HTTP_401_UNAUTHORIZED,
+                    detail = "Could not validate user"
+                )
