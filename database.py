@@ -1,12 +1,12 @@
 from typing import Annotated
+import os
 
 from fastapi import Depends
 from sqlmodel import Session, SQLModel, create_engine
 
-sqlite_url = "sqlite:///database.db"
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+engine = create_engine(DATABASE_URL)
 
 
 def create_db_and_tables():
