@@ -13,6 +13,7 @@ class User(SQLModel, table=True):
     last_name: str = Field(max_length=80)
     username: str = Field(max_length=15, unique=True, index=True)
     email: str = Field(unique=True)
+    phone: str = Field(max_length=12, min_length=11)
     password: str
     date_of_birth: date
     is_active: bool = Field(default=True)
